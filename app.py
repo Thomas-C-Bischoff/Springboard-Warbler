@@ -154,7 +154,8 @@ def users_show(user_id):
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    return render_template('users/show.html', user=user, messages=messages)
+    likes = [messages.id for message in user.likes]
+    return render_template('users/show.html', user=user, messages=messages, likes = likes)
 
 
 @app.route('/users/<int:user_id>/following')
@@ -212,7 +213,7 @@ def stop_following(follow_id):
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
-def profile():
+def edit_profile():
     """Update profile for current user."""
 
     if not g.user:
@@ -247,6 +248,13 @@ def delete_user():
 
     return redirect("/signup")
 
+@app.route('/users/<int:user_id>/likes', methods=["GET"])
+def show_like(user_id):
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    user = User.query.get_or_404(user_id)
+    return render_template('users/likes.html', user = user, likes = user.likes)
 
 ##############################################################################
 # Messages routes:
