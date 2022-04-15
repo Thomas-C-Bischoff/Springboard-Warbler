@@ -272,6 +272,8 @@ def add_like(message_id):
     db.session.commit()
     return redirect("/")
 
+
+
 ##############################################################################
 # Messages routes:
 
@@ -341,7 +343,7 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-
+        liked_ids = [msg.id for msg in g.user.likes]
         return render_template('home.html', messages=messages)
 
     else:
