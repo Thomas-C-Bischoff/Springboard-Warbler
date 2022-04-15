@@ -117,7 +117,7 @@ def logout():
     """Handle logout of user."""
 
     do_logout()
-    flash("Logout Completed. Have a Nice Day!!!", "Success")
+    flash("Logout Completed. Have a Nice Day!!!", "success")
     return redirect("/login")
 
 ##############################################################################
@@ -216,7 +216,7 @@ def profile():
     """Update profile for current user."""
 
     if not g.user:
-        flash("Access Denied!!!", "Danger")
+        flash("Access Denied!!!", "danger")
         return redirect("/")
     user = g.user
     form = user.UserEditForm(obj = user)
@@ -229,7 +229,7 @@ def profile():
             user.bio = form.bio.data
             db.session.commit()
             return redirect(f"/users/{user.id}")
-        flash("Incorrect Password, Please Retry.", "Danger")
+        flash("Incorrect Password, Please Retry.", "danger")
     return render_template("users/edit.html", form = form, user_id = user.id)
 
 @app.route('/users/delete', methods=["POST"])
@@ -310,8 +310,10 @@ def homepage():
     """
 
     if g.user:
+        following_ids = [f.id for f in g.user.following] + [g.user.id]
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(following_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
@@ -320,6 +322,11 @@ def homepage():
 
     else:
         return render_template('home-anon.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """404 NOT FOUND page."""
+    return render_template('404.html'), 404
 
 
 ##############################################################################
