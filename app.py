@@ -65,6 +65,9 @@ def signup():
     and re-present form.
     """
 
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+
     form = UserAddForm()
 
     if form.validate_on_submit():
@@ -77,7 +80,7 @@ def signup():
             )
             db.session.commit()
 
-        except IntegrityError:
+        except IntegrityError as e:
             flash("Username already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
